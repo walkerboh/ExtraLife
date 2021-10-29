@@ -45,5 +45,57 @@ namespace ExtraLifeTests.IntegrationTests
 
             Assert.Null(response);
         }
+
+        [Fact]
+        public async Task GetParticipantDonationsAsync_WithValidParams_GetsDonationList()
+        {
+            var response = await client.GetParticipantDonationsAsync(22176, 1, 5);
+
+            Assert.Equal(5, response.Count());
+        }
+
+        [Fact]
+        public async Task GetParticipantDonationsAsync_WithInvalidId_ReturnsNull()
+        {
+            var response = await client.GetParticipantDonationsAsync(-1, 1, 5);
+
+            Assert.Null(response);
+        }
+
+        [Fact]
+        public async Task GetParticipantDonationsAsync_WithInvalidParams_ThrowsApiException()
+        {
+            await Assert.ThrowsAsync<ApiResponseException>(() => client.GetParticipantDonationsAsync(22176, -1, 5));
+        }
+
+        [Fact]
+        public async Task GetParticipantDonorsAsync_WithValidParams_GetsDonorList()
+        {
+            var response = await client.GetParticipantDonorsAsync(22176, 1, 3);
+
+            Assert.Equal(3, response.Count());
+        }
+
+        [Fact]
+        public async Task GetParticipantDonorsAsync_WithInvalidId_ReturnsNull()
+        {
+            var response = await client.GetParticipantDonorsAsync(-1, 1, 3);
+
+            Assert.Null(response);
+        }
+
+        [Fact]
+        public async Task GetParticipantDonorsAsync_WithInvalidParams_ThrowsApiException()
+        {
+            await Assert.ThrowsAsync<ApiResponseException>(() => client.GetParticipantDonorsAsync(22176, -1, 3));
+        }
+
+        [Fact]
+        public async Task GetParticipantActivitiesAsync_WithValidParams_GetsActivityList()
+        {
+            var response = await client.GetParticipantActivitiesAsync(22176);
+
+            Assert.Equal(5, response.Count());
+        }
     }
 }

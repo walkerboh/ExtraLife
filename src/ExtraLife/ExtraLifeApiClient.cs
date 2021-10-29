@@ -31,8 +31,6 @@ namespace ExtraLife
         public Task<IEnumerable<Donor>> GetParticipantDonorsAsync(int participantId, int page, int limit) =>
             ApiGet<IEnumerable<Donor>>($"{BaseUrl}/participants/{participantId}/donors{GetPaginationQuery(page, limit)}");
 
-        public Task<Donor> GetDonorAsync(string donorId) => ApiGet<Donor>($"{BaseUrl}/donors/{donorId}");
-
         public Task<IEnumerable<Activity>> GetParticipantActivitiesAsync(int participantId) =>
             ApiGet<IEnumerable<Activity>>($"{BaseUrl}/participants/{participantId}/activity");
 

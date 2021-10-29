@@ -14,8 +14,6 @@ namespace ExtraLife
 
         Task<IEnumerable<Donor>> GetParticipantDonorsAsync(int participantId, int limit, int page);
 
-        Task<Donor> GetDonorAsync(string donorId);
-
         Task<IEnumerable<Activity>> GetParticipantActivitiesAsync(int participantId);
     }
 }
