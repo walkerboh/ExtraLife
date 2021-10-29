@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ExtraLife\ExtraLife.csproj" />
+    <ProjectReference Include="..\src\ExtraLife.csproj" />
   </ItemGroup>
 
 </Project>
