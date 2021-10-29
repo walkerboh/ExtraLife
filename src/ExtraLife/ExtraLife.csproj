@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Authors>Evan Frisch</Authors>
+    <Company />
+    <Description>Library to access the DonorDrive API for ExtraLife. Provides access to commonly used functions.</Description>
+    <Copyright>Copyright © 2021</Copyright>
+    <PackageProjectUrl>https://github.com/walkerboh/ExtraLife</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/walkerboh/ExtraLife</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>API ExtraLife</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
