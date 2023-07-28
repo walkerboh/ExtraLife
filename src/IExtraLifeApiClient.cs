@@ -8,12 +8,18 @@ namespace ExtraLife
     {
         Task<IEnumerable<Participant>> GetParticipantsAsync(int limit, int page);
 
+        Task<IEnumerable<Participant>> GetAllParticipantsAsync();
+
         Task<Participant> GetParticipantAsync(int participantId);
 
         Task<IEnumerable<Donation>> GetParticipantDonationsAsync(int participantId, int limit, int page);
 
+        Task<IEnumerable<Donation>> GetAllParticipantDonationsAsync(int participantId);
+
         Task<IEnumerable<Donor>> GetParticipantDonorsAsync(int participantId, int limit, int page);
 
-        Task<IEnumerable<Activity>> GetParticipantActivitiesAsync(int participantId);
+        Task<IEnumerable<Donor>> GetAllParticipantDonorsAsync(int participantId);
+
+        Task<IEnumerable<Activity>> GetAllParticipantActivitiesAsync(int participantId);
     }
 }

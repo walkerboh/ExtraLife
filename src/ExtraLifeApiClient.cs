@@ -1,45 +1,73 @@
-﻿using System.Collections.Generic;
+﻿using ExtraLife.Entities;
+using ExtraLife.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using ExtraLife.Entities;
 
 namespace ExtraLife
 {
     public class ExtraLifeApiClient : IExtraLifeApiClient
     {
-        private const string StandardBaseUrl = "https://www.extra-life.org/api";
+        private readonly HttpClient _client;
 
-        private string BaseUrl { get; }
-
-        public ExtraLifeApiClient() : this(StandardBaseUrl) { }
-
-        public ExtraLifeApiClient(string baseUrl)
+        public ExtraLifeApiClient(HttpClient client)
         {
-            BaseUrl = baseUrl;
+            _client = client;
         }
 
         public Task<IEnumerable<Participant>> GetParticipantsAsync(int page, int limit) =>
-            ApiGet<IEnumerable<Participant>>($"{BaseUrl}/participants{GetPaginationQuery(page, limit)}");
+            ApiGet<IEnumerable<Participant>>($"participants{GetPaginationQuery(page, limit)}");
+
+        public Task<IEnumerable<Participant>> GetAllParticipantsAsync() =>
+            ApiGetAll<Participant>($"participants");
 
         public Task<Participant> GetParticipantAsync(int participantId) =>
-            ApiGet<Participant>($"{BaseUrl}/participants/{participantId}");
+            ApiGet<Participant>($"participants/{participantId}");
 
         public Task<IEnumerable<Donation>> GetParticipantDonationsAsync(int participantId, int page, int limit) =>
-            ApiGet<IEnumerable<Donation>>($"{BaseUrl}/participants/{participantId}/donations{GetPaginationQuery(page, limit)}");
+            ApiGet<IEnumerable<Donation>>($"participants/{participantId}/donations{GetPaginationQuery(page, limit)}");
+
+        public Task<IEnumerable<Donation>> GetAllParticipantDonationsAsync(int participantId) =>
+            ApiGetAll<Donation>($"participants/{participantId}/donations");
 
         public Task<IEnumerable<Donor>> GetParticipantDonorsAsync(int participantId, int page, int limit) =>
-            ApiGet<IEnumerable<Donor>>($"{BaseUrl}/participants/{participantId}/donors{GetPaginationQuery(page, limit)}");
+            ApiGet<IEnumerable<Donor>>($"participants/{participantId}/donors{GetPaginationQuery(page, limit)}");
 
-        public Task<IEnumerable<Activity>> GetParticipantActivitiesAsync(int participantId) =>
-            ApiGet<IEnumerable<Activity>>($"{BaseUrl}/participants/{participantId}/activity");
+        public Task<IEnumerable<Donor>> GetAllParticipantDonorsAsync(int participantId) =>
+            ApiGetAll<Donor>($"participants/{participantId}/donors");
+
+        public Task<IEnumerable<Activity>> GetAllParticipantActivitiesAsync(int participantId) =>
+            ApiGetAll<Activity>($"participants/{participantId}/activity");
 
         private static string GetPaginationQuery(int page, int limit) => $"?offset={(page == 1 ? 1 : limit * (page - 1))}&limit={limit}";
 
-        private static async Task<T> ApiGet<T>(string uri)
+        private async Task<T> ApiGet<T>(string uri)
         {
-            using var client = new HttpClient();
-            var response = await client.GetAsync(uri);
+            var (item, _) = await ApiGetInternal<T>(uri);
+
+            return item;
+        }
+
+        private async Task<IEnumerable<T>> ApiGetAll<T>(string uri)
+        {
+            var output = new List<T>();
+
+            do
+            {
+                var (items, linkHeader) = await ApiGetInternal<IEnumerable<T>>(uri);
+                output.AddRange(items ?? Enumerable.Empty<T>());
+                uri = linkHeader?.NextLink;
+            } while (!string.IsNullOrEmpty(uri));
+
+            return output;
+        }
+
+        private async Task<(T, LinkHeader)> ApiGetInternal<T>(string uri)
+        {
+            var response = await _client.GetAsync(uri);
 
             if(response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -51,7 +79,13 @@ namespace ExtraLife
                 throw new ApiResponseException(response.ReasonPhrase) { HttpResponseCode = response.StatusCode };
             }
 
-            return await response.Content.ReadAsAsync<T>();
+            var jsonContent = await response.Content.ReadAsStringAsync();
+
+            var item = JsonSerializer.Deserialize<T>(jsonContent);
+
+            var linkHeader = response.Headers.TryGetValues("link", out var link) ? LinkHeader.ParseLinkHeader(link.First()) : default;
+
+            return (item, linkHeader);
         }
     }
 }
