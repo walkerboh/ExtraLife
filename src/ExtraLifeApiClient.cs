@@ -81,7 +81,13 @@ namespace ExtraLife
 
             var jsonContent = await response.Content.ReadAsStringAsync();
 
-            var item = JsonSerializer.Deserialize<T>(jsonContent);
+            var options = new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            options.Converters.Add(new DateTimeConverter());
+
+            var item = JsonSerializer.Deserialize<T>(jsonContent, options);
 
             var linkHeader = response.Headers.TryGetValues("link", out var link) ? LinkHeader.ParseLinkHeader(link.First()) : default;
 
